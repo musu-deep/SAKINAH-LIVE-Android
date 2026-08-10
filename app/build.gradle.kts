@@ -11,8 +11,8 @@ android {
         applicationId = "com.sakinah.mobile"
         minSdk = 29
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.5.0"
+        versionCode = 20
+        versionName = "2.0.0"
     }
 
     buildFeatures {

@@ -9,11 +9,17 @@
 
     <application
         android:allowBackup="true"
-        android:label="سكينة LIVE"
+        android:label="أثر ATHAR"
         android:icon="@drawable/ic_launcher"
         android:roundIcon="@drawable/ic_launcher"
         android:theme="@style/Theme.Sakinah"
         android:usesCleartextTraffic="true">
+
+        <activity
+            android:name=".SakinahLiveActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"
