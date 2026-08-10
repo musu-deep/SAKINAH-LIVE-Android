@@ -45,24 +45,19 @@ class BroadcastService : Service(), ConnectChecker {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
-            stopStream()
-            stopSelf()
-            return START_NOT_STICKY
+            stopStream(); stopSelf(); return START_NOT_STICKY
         }
         return START_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
-
     fun projectionIntent(): Intent = projectionManager.createScreenCaptureIntent()
     fun setListener(value: ConnectChecker?) { listener = value }
     fun isStreaming(): Boolean = ::stream.isInitialized && stream.isStreaming
 
     fun prepareProjection(resultCode: Int, data: Intent, audioMode: AudioMode): Boolean {
         if (!prepared) return false
-        startAsForeground()
-        stopStream()
-        projection?.stop()
+        startAsForeground(); stopStream(); projection?.stop()
         projection = projectionManager.getMediaProjection(resultCode, data) ?: return false
         return try {
             stream.changeVideoSource(ScreenSource(applicationContext, projection!!))
@@ -72,33 +67,23 @@ class BroadcastService : Service(), ConnectChecker {
                 AudioMode.MICROPHONE -> stream.changeAudioSource(MicrophoneSource())
             }
             true
-        } catch (_: Exception) {
-            false
-        }
+        } catch (_: Exception) { false }
     }
 
-    fun startStream(endpoint: String) {
-        if (!stream.isStreaming) stream.startStream(endpoint)
-    }
-
-    fun stopStream() {
-        if (::stream.isInitialized && stream.isStreaming) stream.stopStream()
-    }
+    fun startStream(endpoint: String) { if (!stream.isStreaming) stream.startStream(endpoint) }
+    fun stopStream() { if (::stream.isInitialized && stream.isStreaming) stream.stopStream() }
 
     private fun startAsForeground() {
         val stopIntent = Intent(this, BroadcastService::class.java).setAction(ACTION_STOP)
-        val pending = PendingIntent.getService(
-            this, 0, stopIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        val pending = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val open = PendingIntent.getActivity(
-            this, 1, Intent(this, MainActivity::class.java),
+            this, 1, Intent(this, SakinahLiveActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.presence_video_online)
-            .setContentTitle("سكينة LIVE — البث يعمل")
-            .setContentText("اضغط للعودة إلى شاشة البث")
+            .setContentTitle("SAKINAH LIVE — البث يعمل")
+            .setContentText("اضغط للعودة إلى الاستوديو")
             .setContentIntent(open)
             .setOngoing(true)
             .addAction(android.R.drawable.ic_media_pause, "إيقاف البث", pending)
@@ -109,19 +94,12 @@ class BroadcastService : Service(), ConnectChecker {
     private fun createChannel() {
         if (Build.VERSION.SDK_INT >= 26) {
             val nm = getSystemService(NotificationManager::class.java)
-            nm.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "Sakinah Broadcast", NotificationManager.IMPORTANCE_LOW)
-            )
+            nm.createNotificationChannel(NotificationChannel(CHANNEL_ID, "Sakinah Broadcast", NotificationManager.IMPORTANCE_LOW))
         }
     }
 
     override fun onDestroy() {
-        stopStream()
-        if (::stream.isInitialized) stream.release()
-        projection?.stop()
-        projection = null
-        INSTANCE = null
-        super.onDestroy()
+        stopStream(); if (::stream.isInitialized) stream.release(); projection?.stop(); projection = null; INSTANCE = null; super.onDestroy()
     }
 
     override fun onConnectionStarted(url: String) { listener?.onConnectionStarted(url) }
