@@ -5,10 +5,8 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -30,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     private val bg = 0xFF0B0D18.toInt()
     private val surface = 0xFF151827.toInt()
     private val surface2 = 0xFF1C2033.toInt()
-    private val text = 0xFFF6F7FB.toInt()
+    private val textColor = 0xFFF6F7FB.toInt()
     private val muted = 0xFFADB4CC.toInt()
     private val accent = 0xFF8B7CFF.toInt()
     private val cyan = 0xFF66D9FF.toInt()
@@ -49,18 +47,16 @@ class MainActivity : AppCompatActivity() {
             setBackgroundColor(bg)
             layoutDirection = View.LAYOUT_DIRECTION_RTL
         }
-
         val header = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(18), dp(20), dp(18), dp(10))
         }
-        val brand = TextView(this).apply {
+        header.addView(TextView(this).apply {
             text = "أثر  ATHAR"
             textSize = 28f
-            setTextColor(text)
+            setTextColor(textColor)
             setTypeface(typeface, Typeface.BOLD)
-        }
-        header.addView(brand)
+        })
         titleView = TextView(this).apply {
             text = "شبكة اجتماعية مبنية على النتائج"
             textSize = 13f
@@ -68,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         }
         header.addView(titleView)
         root.addView(header)
-
         val scroll = ScrollView(this).apply { isFillViewport = true }
         contentHost = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -76,7 +71,6 @@ class MainActivity : AppCompatActivity() {
         }
         scroll.addView(contentHost)
         root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
-
         root.addView(bottomNav())
         setContentView(root)
     }
@@ -88,24 +82,16 @@ class MainActivity : AppCompatActivity() {
             setPadding(dp(4), dp(6), dp(4), dp(8))
             setBackgroundColor(surface)
         }
-        val items = listOf(
-            "⌂\nلك" to "feed",
-            "◎\nشبكتي" to "network",
-            "●\nLIVE" to "live",
-            "↗\nأثري" to "impact",
-            "✦\nالوكيل" to "agent"
-        )
+        val items = listOf("⌂\nلك" to "feed", "◎\nشبكتي" to "network", "●\nLIVE" to "live", "↗\nأثري" to "impact", "✦\nالوكيل" to "agent")
         items.forEach { (label, key) ->
             val b = MaterialButton(this).apply {
                 text = label
                 textSize = 11f
                 setTextColor(if (key == section) accent else muted)
                 setBackgroundColor(0x00000000)
-                insetTop = 0; insetBottom = 0
-                setOnClickListener {
-                    section = key
-                    rebuildBottomAndShow(key)
-                }
+                insetTop = 0
+                insetBottom = 0
+                setOnClickListener { section = key; rebuildBottomAndShow(key) }
             }
             bar.addView(b, LinearLayout.LayoutParams(0, dp(58), 1f))
         }
@@ -140,28 +126,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goalHeader() {
-        val card = card()
+        val c = card()
         val box = vertical()
         box.addView(kicker("PURPOSE GRAPH"))
         box.addView(h2("هدفي الآن"))
         val spinner = Spinner(this).apply {
-            adapter = ArrayAdapter(
-                this@MainActivity,
-                android.R.layout.simple_spinner_dropdown_item,
-                listOf("بناء شبكة أثر ومعرفة", "تطوير SAKINAH LIVE", "تأسيس مشروع جديد", "التشبيك مع خبراء", "اكتساب معرفة مركزة")
-            )
+            adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item, listOf("بناء شبكة أثر ومعرفة", "تطوير SAKINAH LIVE", "تأسيس مشروع جديد", "التشبيك مع خبراء", "اكتساب معرفة مركزة"))
             val current = (adapter as ArrayAdapter<String>).getPosition(store.goal)
             if (current >= 0) setSelection(current)
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    store.goal = parent?.getItemAtPosition(position).toString()
-                }
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) { store.goal = parent?.getItemAtPosition(position).toString() }
                 override fun onNothingSelected(parent: AdapterView<*>?) = Unit
             }
         }
         box.addView(spinner)
-        card.addView(box)
-        contentHost.addView(card)
+        c.addView(box)
+        contentHost.addView(c)
     }
 
     private fun feedModes() {
@@ -170,7 +150,7 @@ class MainActivity : AppCompatActivity() {
         listOf("لك", "لهدفك", "لشبكتك", "لنموك", "لأثرك").forEachIndexed { i, s ->
             row.addView(MaterialButton(this).apply {
                 text = s
-                setTextColor(if (i == 0) text else muted)
+                setTextColor(if (i == 0) textColor else muted)
                 setBackgroundColor(if (i == 0) surface2 else 0x00000000)
                 setOnClickListener { toast("تم تفعيل موجز: $s") }
             })
@@ -188,19 +168,15 @@ class MainActivity : AppCompatActivity() {
         box.addView(tags(item.tags.joinToString("   ") { "#$it" }))
         val stats = TextView(this).apply {
             text = "♡ ${item.likes}    ↗ مشاركة    ${if (item.saved) "★ محفوظ" else "☆ حفظ"}"
-            setTextColor(muted); textSize = 13f; setPadding(0, dp(10), 0, 0)
+            setTextColor(muted)
+            textSize = 13f
+            setPadding(0, dp(10), 0, 0)
         }
         box.addView(stats)
         val actions = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        actions.addView(smallButton("♡ مفيد") {
-            store.like(item); stats.text = "♡ ${item.likes}    ↗ مشاركة    ${if (item.saved) "★ محفوظ" else "☆ حفظ"}"
-        }, LinearLayout.LayoutParams(0, dp(46), 1f))
-        actions.addView(smallButton(if (item.saved) "★ محفوظ" else "☆ حفظ") {
-            store.save(item); showFeed()
-        }, LinearLayout.LayoutParams(0, dp(46), 1f))
-        actions.addView(smallButton("↗ حوّله لفعل") {
-            store.addContribution(); toast("تم تسجيل فعل مرتبط بالمحتوى")
-        }, LinearLayout.LayoutParams(0, dp(46), 1f))
+        actions.addView(smallButton("♡ مفيد") { store.like(item); stats.text = "♡ ${item.likes}    ↗ مشاركة    ${if (item.saved) "★ محفوظ" else "☆ حفظ"}" }, LinearLayout.LayoutParams(0, dp(46), 1f))
+        actions.addView(smallButton(if (item.saved) "★ محفوظ" else "☆ حفظ") { store.save(item); showFeed() }, LinearLayout.LayoutParams(0, dp(46), 1f))
+        actions.addView(smallButton("↗ حوّله لفعل") { store.addContribution(); toast("تم تسجيل فعل مرتبط بالمحتوى") }, LinearLayout.LayoutParams(0, dp(46), 1f))
         box.addView(actions)
         c.addView(box)
         return c
@@ -213,9 +189,7 @@ class MainActivity : AppCompatActivity() {
         store.matches.forEach { m ->
             val c = card(); val box = vertical()
             box.addView(kicker("TRUST ${m.trust}%")); box.addView(h2(m.name)); box.addView(body(m.role)); box.addView(body(m.reason))
-            box.addView(primaryButton(if (m.connected) "✓ متصل" else "＋ تواصل") {
-                store.connect(m); showNetwork()
-            })
+            box.addView(primaryButton(if (m.connected) "✓ متصل" else "＋ تواصل") { store.connect(m); showNetwork() })
             c.addView(box); contentHost.addView(c)
         }
         sectionTitle("المجتمعات", "الانتماء حول هدف لا حول المتابعة فقط")
@@ -255,15 +229,8 @@ class MainActivity : AppCompatActivity() {
         box.addView(body("استوديو مستقل داخل الهاتف: مشهد قرآني، تلاوة محلية، RTMP/RTMPS، ووضع مشهد ملء الشاشة للبث عبر أي قناة تدعم مشاركة الشاشة."))
         box.addView(primaryButton("فتح SAKINAH Studio") { startActivity(Intent(this, SakinahLiveActivity::class.java)) })
         hero.addView(box); contentHost.addView(hero)
-
         sectionTitle("أنماط LIVE", "اختر ما الذي يجب أن يحدث بعد المشاهدة")
-        listOf(
-            "Broadcast" to "بث أحادي مع تفاعل خفيف",
-            "Discussion" to "نقاش متعدد الضيوف وأسئلة الجمهور",
-            "Learning Room" to "درس + اختبار + حفظ تقدم",
-            "Project Room" to "غرفة مشروع بقرارات ومهام",
-            "Action Room" to "جلسة تنتهي بالتزام واضح لكل مشارك"
-        ).forEach { (a,b) ->
+        listOf("Broadcast" to "بث أحادي مع تفاعل خفيف", "Discussion" to "نقاش متعدد الضيوف وأسئلة الجمهور", "Learning Room" to "درس + اختبار + حفظ تقدم", "Project Room" to "غرفة مشروع بقرارات ومهام", "Action Room" to "جلسة تنتهي بالتزام واضح لكل مشارك").forEach { (a,b) ->
             val c = card(); val bx = vertical(); bx.addView(h2(a)); bx.addView(body(b)); bx.addView(smallButton("إنشاء غرفة") { toast("تم إنشاء قالب $a محلياً") }); c.addView(bx); contentHost.addView(c)
         }
     }
@@ -272,19 +239,14 @@ class MainActivity : AppCompatActivity() {
         clear("أثري", "Outcome-native profile")
         val score = store.impactScore()
         val c = card(); val box = vertical()
-        box.addView(kicker("IMPACT SCORE")); box.addView(TextView(this).apply {
-            text = "$score / 100"; textSize = 44f; setTypeface(typeface, Typeface.BOLD); setTextColor(green)
-        })
+        box.addView(kicker("IMPACT SCORE"))
+        box.addView(TextView(this).apply { text = "$score / 100"; textSize = 44f; setTypeface(typeface, Typeface.BOLD); setTextColor(green) })
         box.addView(body("المؤشر يجمع العلاقات، الأفعال، المعرفة المحفوظة، المساهمات والنتائج — وليس عدد المشاهدات فقط."))
         box.addView(ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply { max = 100; progress = score })
         c.addView(box); contentHost.addView(c)
         metricsRow()
         sectionTitle("Outcome Graph", "نتائج يمكن إثباتها وربطها بمشروعات وأشخاص")
-        listOf(
-            "نتيجة موثقة" to "SAKINAH أصبح تطبيق Android قابل للبناء والنشر.",
-            "علاقة ذات معنى" to "مطابقة خبرة تقنية مع مشروع شبكة النتائج.",
-            "معرفة تحولت لفعل" to "إنشاء نموذج قياس يتجاوز Likes إلى Action وOutcome."
-        ).forEach { (a,b) ->
+        listOf("نتيجة موثقة" to "SAKINAH أصبح تطبيق Android قابل للبناء والنشر.", "علاقة ذات معنى" to "مطابقة خبرة تقنية مع مشروع شبكة النتائج.", "معرفة تحولت لفعل" to "إنشاء نموذج قياس يتجاوز Likes إلى Action وOutcome.").forEach { (a,b) ->
             val cc = card(); val bx = vertical(); bx.addView(kicker("VERIFIED OUTCOME ✓")); bx.addView(h2(a)); bx.addView(body(b)); cc.addView(bx); contentHost.addView(cc)
         }
         contentHost.addView(primaryButton("＋ سجل مساهمة جديدة") { store.addContribution(); showImpact() })
@@ -293,16 +255,13 @@ class MainActivity : AppCompatActivity() {
     private fun metricsRow() {
         val hs = HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled = false }
         val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        listOf(
-            "${store.connections}" to "علاقة",
-            "${store.actions}" to "فعل",
-            "${store.outcomes}" to "نتيجة",
-            "${store.peopleHelped}" to "شخصاً ساعدت",
-            "${store.knowledgeSaved}" to "معرفة محفوظة"
-        ).forEach { (n,l) ->
+        listOf("${store.connections}" to "علاقة", "${store.actions}" to "فعل", "${store.outcomes}" to "نتيجة", "${store.peopleHelped}" to "شخصاً ساعدت", "${store.knowledgeSaved}" to "معرفة محفوظة").forEach { (n,l) ->
             val c = MaterialCardView(this).apply { radius = dp(16).toFloat(); setCardBackgroundColor(surface2); setContentPadding(dp(16), dp(12), dp(16), dp(12)) }
-            val b = vertical(); b.addView(TextView(this).apply { text=n; textSize=24f; setTextColor(text); setTypeface(typeface,Typeface.BOLD) }); b.addView(TextView(this).apply { text=l; textSize=11f; setTextColor(muted) }); c.addView(b)
-            row.addView(c, LinearLayout.LayoutParams(dp(132), dp(82)).apply { setMargins(dp(5),dp(4),dp(5),dp(8)) })
+            val b = vertical()
+            b.addView(TextView(this).apply { text = n; textSize = 24f; setTextColor(textColor); setTypeface(typeface, Typeface.BOLD) })
+            b.addView(TextView(this).apply { text = l; textSize = 11f; setTextColor(muted) })
+            c.addView(b)
+            row.addView(c, LinearLayout.LayoutParams(dp(132), dp(82)).apply { setMargins(dp(5), dp(4), dp(5), dp(8)) })
         }
         hs.addView(row); contentHost.addView(hs)
     }
@@ -312,17 +271,14 @@ class MainActivity : AppCompatActivity() {
         addInsightBanner("Agentic Layer", "الوكيل يقرأ هدفك وحالة شبكتك ومشروعاتك وفرصك، ثم يقترح الخطوة التالية ذات أعلى احتمال للنتيجة.")
         val c = card(); val box = vertical()
         box.addView(kicker("YOUR NEXT BEST ACTION")); box.addView(h2("تحليل سياقك الحالي"))
-        val result = TextView(this).apply { text = store.agentRecommendation(); setTextColor(text); textSize = 15f; setPadding(0,dp(10),0,dp(10)) }
+        val result = TextView(this).apply { text = store.agentRecommendation(); setTextColor(textColor); textSize = 15f; setPadding(0, dp(10), 0, dp(10)) }
         box.addView(result)
         box.addView(primaryButton("✦ أعد التحليل") { result.text = store.agentRecommendation() })
         c.addView(box); contentHost.addView(c)
-
         sectionTitle("اسأل الوكيل", "إجابات سياقية داخل التطبيق")
-        val input = TextInputEditText(this).apply {
-            hint = "مثال: ما أفضل خطوة لمشروع سكينة الآن؟"; setTextColor(text); setHintTextColor(muted); setBackgroundColor(surface2); setPadding(dp(14),dp(14),dp(14),dp(14))
-        }
-        contentHost.addView(input, LinearLayout.LayoutParams(-1, dp(90)).apply { setMargins(0,dp(6),0,dp(8)) })
-        val answer = TextView(this).apply { setTextColor(text); textSize = 15f }
+        val input = TextInputEditText(this).apply { hint = "مثال: ما أفضل خطوة لمشروع سكينة الآن؟"; setTextColor(textColor); setHintTextColor(muted); setBackgroundColor(surface2); setPadding(dp(14), dp(14), dp(14), dp(14)) }
+        contentHost.addView(input, LinearLayout.LayoutParams(-1, dp(90)).apply { setMargins(0, dp(6), 0, dp(8)) })
+        val answer = TextView(this).apply { setTextColor(textColor); textSize = 15f }
         contentHost.addView(primaryButton("اسأل") {
             val q = input.text?.toString().orEmpty()
             answer.text = if (q.isBlank()) "اكتب سؤالك أولاً." else "بناءً على هدفك «${store.goal}»: ${store.agentRecommendation()}"
@@ -332,17 +288,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun createKnowledgeObject() {
         val input = TextInputEditText(this).apply { hint = "اكتب فكرة، سؤالاً، فرصة أو نتيجة" }
-        AlertDialog.Builder(this)
-            .setTitle("Knowledge Object جديد")
-            .setView(input)
-            .setNegativeButton("إلغاء", null)
-            .setPositiveButton("إضافة") { _, _ ->
-                val value = input.text?.toString()?.trim().orEmpty()
-                if (value.isNotEmpty()) {
-                    store.feed.add(0, FeedItem("local-${System.currentTimeMillis()}", "IDEA", value, "كائن معرفة أنشأته الآن ويمكن لاحقاً ربطه بهدف أو مشروع أو شخص.", "أنت", listOf("جديد"), 0))
-                    showFeed()
-                }
-            }.show()
+        AlertDialog.Builder(this).setTitle("Knowledge Object جديد").setView(input).setNegativeButton("إلغاء", null).setPositiveButton("إضافة") { _, _ ->
+            val value = input.text?.toString()?.trim().orEmpty()
+            if (value.isNotEmpty()) {
+                store.feed.add(0, FeedItem("local-${System.currentTimeMillis()}", "IDEA", value, "كائن معرفة أنشأته الآن ويمكن لاحقاً ربطه بهدف أو مشروع أو شخص.", "أنت", listOf("جديد"), 0))
+                showFeed()
+            }
+        }.show()
     }
 
     private fun addInsightBanner(title: String, message: String) {
@@ -350,29 +302,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sectionTitle(a: String, b: String) {
-        contentHost.addView(TextView(this).apply { text=a; textSize=22f; setTextColor(text); setTypeface(typeface,Typeface.BOLD); setPadding(dp(4),dp(18),dp(4),0) })
-        contentHost.addView(TextView(this).apply { text=b; textSize=12f; setTextColor(muted); setPadding(dp(4),0,dp(4),dp(8)) })
+        contentHost.addView(TextView(this).apply { text = a; textSize = 22f; setTextColor(textColor); setTypeface(typeface, Typeface.BOLD); setPadding(dp(4), dp(18), dp(4), 0) })
+        contentHost.addView(TextView(this).apply { text = b; textSize = 12f; setTextColor(muted); setPadding(dp(4), 0, dp(4), dp(8)) })
     }
 
     private fun card(color: Int = surface): MaterialCardView = MaterialCardView(this).apply {
-        radius = dp(20).toFloat(); setCardBackgroundColor(color); cardElevation = 0f; setContentPadding(dp(16),dp(16),dp(16),dp(16))
-        layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0,dp(6),0,dp(6)) }
+        radius = dp(20).toFloat(); setCardBackgroundColor(color); cardElevation = 0f; setContentPadding(dp(16), dp(16), dp(16), dp(16))
+        layoutParams = LinearLayout.LayoutParams(-1, -2).apply { setMargins(0, dp(6), 0, dp(6)) }
     }
-
     private fun vertical() = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; layoutDirection = View.LAYOUT_DIRECTION_RTL }
-    private fun kicker(s: String) = TextView(this).apply { text=s; textSize=10f; setTextColor(cyan); setTypeface(typeface,Typeface.BOLD) }
-    private fun h2(s: String) = TextView(this).apply { text=s; textSize=20f; setTextColor(text); setTypeface(typeface,Typeface.BOLD); setPadding(0,dp(4),0,dp(5)) }
-    private fun body(s: String) = TextView(this).apply { text=s; textSize=14f; setTextColor(text); setLineSpacing(2f,1.15f) }
-    private fun tags(s: String) = TextView(this).apply { text=s; textSize=11f; setTextColor(muted); setPadding(0,dp(8),0,0) }
-
+    private fun kicker(s: String) = TextView(this).apply { text = s; textSize = 10f; setTextColor(cyan); setTypeface(typeface, Typeface.BOLD) }
+    private fun h2(s: String) = TextView(this).apply { text = s; textSize = 20f; setTextColor(textColor); setTypeface(typeface, Typeface.BOLD); setPadding(0, dp(4), 0, dp(5)) }
+    private fun body(s: String) = TextView(this).apply { text = s; textSize = 14f; setTextColor(textColor); setLineSpacing(2f, 1.15f) }
+    private fun tags(s: String) = TextView(this).apply { text = s; textSize = 11f; setTextColor(muted); setPadding(0, dp(8), 0, 0) }
     private fun primaryButton(label: String, action: () -> Unit) = MaterialButton(this).apply {
-        text=label; setTextColor(text); setBackgroundColor(accent); setOnClickListener { action() }
-        layoutParams = LinearLayout.LayoutParams(-1, dp(50)).apply { setMargins(0,dp(8),0,0) }
+        text = label; setTextColor(textColor); setBackgroundColor(accent); setOnClickListener { action() }
+        layoutParams = LinearLayout.LayoutParams(-1, dp(50)).apply { setMargins(0, dp(8), 0, 0) }
     }
     private fun smallButton(label: String, action: () -> Unit) = MaterialButton(this).apply {
-        text=label; textSize=12f; setTextColor(text); setBackgroundColor(surface2); setOnClickListener { action() }
+        text = label; textSize = 12f; setTextColor(textColor); setBackgroundColor(surface2); setOnClickListener { action() }
     }
-
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
     private fun toast(s: String) = Toast.makeText(this, s, Toast.LENGTH_SHORT).show()
 }
