@@ -16,13 +16,13 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".SakinahLiveActivity"
+            android:name="com.sakinah.mobile.SakinahLiveActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.sakinah.mobile.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait"
             android:exported="true">
@@ -33,7 +33,7 @@
         </activity>
 
         <service
-            android:name=".BroadcastService"
+            android:name="com.sakinah.mobile.BroadcastService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection|microphone" />
     </application>
